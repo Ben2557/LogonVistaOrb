@@ -83,12 +83,12 @@ namespace LogonVistaOrb
             }
             if (identity.User != null && identity.User.Value != systemSid && args[1] != "-testAnim")
             {
-                MessageBox.Show("Seul le compte Système peut jouer l'animation directement.\nSi vous souhaitez tester en tant qu'utilisateur standard, veuillez utiliser l'argument -testAnim.", "Compte d'utilisateur non valide", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Only SYSTEM account can play the animation directly.\nIf you want to test as a standard user, use the -testAnim argument.", "Invalid User account", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(0);
             }
             if (Directory.GetCurrentDirectory() == @"C:\Windows\System32" && isAdmin == false)
             {
-                MessageBox.Show("Impossible d'exécuter le programme à partir de System32 sans les privilèges de l'administrateur !", "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Impossible to run the program from System32 without administrator privileges !", "Access denied", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(0);
             }
             if (isAdmin)
