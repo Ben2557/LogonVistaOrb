@@ -1,13 +1,13 @@
 ### What's new in LogonVistaOrb v2.0.0 ?
 
 - LogonVistaOrb v2.0.0 dynamically uses the Local SYSTEM Windows Account by its common SID (S-1-5-18) instead of the declared string value which causes a crash on non-English Windows languages ! This prevents this error : https://github.com/xxxman360/LogonVistaOrb/issues/2
-- BULTIN\Administrators Local Group (SID = S-1-5-32-544) are now utilised on Task Scheduler instead of SYSTEM (except for logoff) because of the lack of SYSTEM account for retrieving keys from HKEY_CURRENT_USER. As a workaround, program copies registry keys from last user. This is mandatory of custom scheme sounds !
-- Added new option to play or not play ORB animation while keeping other features enabled.
-- Recoded "Enable LogonVistaOrb" option where in v1.0.0 some features were still starting even if the app was completely disabled.
+- BULTIN\Administrators Local Group (SID = S-1-5-32-544) are now utilised on Task Scheduler instead of SYSTEM (except for logoff) because of the lack of SYSTEM account for retrieving keys from HKEY_CURRENT_USER. As a workaround, program copies registry keys from last user. This is mandatory for custom scheme sounds !
+- Added new option to play or not ORB animation while keeping other features enabled.
+- Recoded "Enable LogonVistaOrb" option which in v1.0.0 some features were still starting even if the app was completely disabled.
 - Support for customisation of startup sound.
 - Added new system event sounds such as "Logon, Logoff, Unlock, Lock" sounds! Users can choose if they want to play Session Sounds or not.
 - Recoded Logon Sound function. In v1.0.0 the logon sound only played during the first logon session. Now the sound is also played when switching sessions/users.
-- Now supports SOUND SCHEMES, session sounds can be customised using Windows settings ! (it appears some sounds some sounds, especially original sounds from Windows 7, are not supported ! "SoundAPIFormatNotSupported" returns "The Sound API only supports playback of PCM sound files"). You'll better use converters to avoid this !
+- Now supports SOUND SCHEMES, session sounds can be customised using Windows settings ! (it appears that some sounds, especially original sounds from Windows 7, are not supported ! "SoundAPIFormatNotSupported" returns "The Sound API only supports playback of PCM sound files"). You'll better use converters to avoid this !
 - Added dependencies between boxes : depending on their state, some checkboxes disable others.
 - Reorganised the agencement of the checkboxes due to the options added in the new version.
 - New scheduled tasks were integrated to installer to call new arguments (-lock, -unlock, -logoff, -logon).
