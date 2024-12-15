@@ -43,9 +43,11 @@ namespace LogonVistaOrb
         int imagesLoadedCount = 0;
         int totalImages = 5; //This could change in the future if a skin creator is made. Adding this here to make future updates easier.
         string backgroundColor = "#FF000000";
-        bool[] settings = [true, true, true]; //Startup sound, Logon Sound, Audio Srv check
+        bool[] settings = [true, true, true, true, true, true, true]; //Startup sound, Logon Sound, Audio Srv check, Sound Scheme, Custom Startup, ORB Animation, App Enabled
         bool passedAllChecks = false;
         byte[] wavDataStartup = null;
+        byte[] wavDataCustomStartup = null;
+        byte[] wavDataLogonScheme = null;
         byte[] wavDataLogon = null;
         byte[] dummySound = {   0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45, 0x66, 0x6D, 0x74, 0x20,
                                 0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x40, 0x1F, 0x00, 0x00, 0x80, 0x3E, 0x00, 0x00,
@@ -62,7 +64,6 @@ namespace LogonVistaOrb
             else { 
                 passedAllChecks = true;
             }
-
         }
 
         public MainWindow()
@@ -71,20 +72,23 @@ namespace LogonVistaOrb
              In response to an update I got mid development (KB5041580), I had to add a new method of prepping the app for loading at the login screen, 
              as the update had caused the animation to completely skip. LogonVistaOrb will still work fine on systems without the update.
             */
-            principal = new WindowsPrincipal(identity);
-            isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
+            //Declare SID of SYSTEM account for running animation
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            string systemSid = "S-1-5-18";
+
             if (args.Length == 1) //No actual args, just generate a blank array to prevent crashing 
             {
                 args = new string[5];
             }
-            if (Environment.UserName != "SYSTEM" && args[1] != "-testAnim")
+            if (identity.User != null && identity.User.Value != systemSid && args[1] != "-testAnim")
             {
-                MessageBox.Show("Only the SYSTEM account can play the animation directly.\nIf you wish to test as a standard user, please run with the -testAnim argument.", "Invalid User Account", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Seul le compte Système peut jouer l'animation directement.\nSi vous souhaitez tester en tant qu'utilisateur standard, veuillez utiliser l'argument -testAnim.", "Compte d'utilisateur non valide", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(0);
             }
             if (Directory.GetCurrentDirectory() == @"C:\Windows\System32" && isAdmin == false)
             {
-                MessageBox.Show("Cannot run from System32 without admin privileges!", "Permission Denied", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Impossible d'exécuter le programme à partir de System32 sans les privilèges de l'administrateur !", "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(0);
             }
             if (isAdmin)
@@ -94,9 +98,7 @@ namespace LogonVistaOrb
 
             var dummyWindow = new Window1(); 
             dummyWindow.Loaded += FinishedInit;
-            dummyWindow.Show();
-
-            
+            dummyWindow.Show(); 
         }
 
         public void WaitForAudioServices()
@@ -123,10 +125,14 @@ namespace LogonVistaOrb
         {
             imagesLoadedCount++;
 
+            //Declare SID of SYSTEM account for running animation
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            string systemSid = "S-1-5-18";
+
             if (imagesLoadedCount == totalImages)
             {
                 // All images are loaded
-                if (Environment.UserName == "SYSTEM")
+                if (identity.User != null && identity.User.Value == systemSid)
                 { //Remove the debugger key
                     string keyName = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe";
                     using (RegistryKey key = Registry.LocalMachine.OpenSubKey(keyName, true))
@@ -138,18 +144,42 @@ namespace LogonVistaOrb
                     }
 
                 }
+
                 //Load the audio file too!
                 string audioPathStartup = Directory.GetCurrentDirectory() + "\\LogonVistaOrb\\Sounds\\Startup.wav"; //Make sure the file exists, then load the sound
                 if (File.Exists(audioPathStartup))
                 {
                     wavDataStartup = File.ReadAllBytes(audioPathStartup);
                 }
+                // Retrieve Startup sound scheme path from the registry
+                string audioPathStartupScheme = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
+                string audioPathStartupSchemeSound = null;
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(audioPathStartupScheme, false))
+                audioPathStartupSchemeSound = key.GetValue("StartupSound") as string;
+
+                if (File.Exists(audioPathStartupSchemeSound))
+                {
+                    wavDataCustomStartup = File.ReadAllBytes(audioPathStartupSchemeSound);
+                }
+
                 string audioPathLogon = Directory.GetCurrentDirectory() + "\\LogonVistaOrb\\Sounds\\Logon.wav";
                 if (File.Exists(audioPathLogon))
                 {
                     wavDataLogon = File.ReadAllBytes(audioPathLogon);
                 }
-                while (!passedAllChecks) {
+                // Retrieve Logon sound scheme path from the registry
+                string audioPathLogonScheme = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
+                string audioPathLogonSchemeSound = null;
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(audioPathLogonScheme, false))
+                audioPathLogonSchemeSound = key.GetValue("LogonSound") as string;
+
+                if (File.Exists(audioPathLogonSchemeSound))
+                {
+                    wavDataLogonScheme = File.ReadAllBytes(audioPathLogonSchemeSound);
+                }
+
+                while (!passedAllChecks)
+                {
                     Debug.Print("Waiting for all checks to finish... (" + Environment.TickCount + ")");
                 }
                 Debug.Print("Ready to start animation!");
@@ -161,8 +191,16 @@ namespace LogonVistaOrb
         {
             SolidColorBrush brush = (SolidColorBrush)new BrushConverter().ConvertFromString(backgroundColor);//Set background color (if user has set one)
             this.Background = brush;
-            if (Environment.UserName == "SYSTEM")
+
+            //Declare SYSTEM account SID
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            string systemSid = "S-1-5-18";
+
+            if (identity.User != null && identity.User.Value == systemSid)
             {
+                // Reload Registry settings during Startup
+                LoadSettings();
+
                 //Attempt to launch LogonUI
                 LogonUI.StartInfo.FileName = Environment.SystemDirectory + "\\LogonUI.exe";
                 LogonUI.StartInfo.WorkingDirectory = Environment.SystemDirectory; //Make sure LogonUI is where it recognizes itself
@@ -172,25 +210,33 @@ namespace LogonVistaOrb
                 LogonUI.Start();
             }
             PlayStartupSound();
-            await Task.Delay(100);
-            await FadeInImage(Image1, 0.10,0,1);
-            await Task.Delay(700);
-            await FadeInImage(Image2, 0.20,0,0.5); //Image2 has a little "blip" synced with the startup sound, hence why it has two different fade intervals
-            await FadeInImage(Image2, 0.60, 0.5, 1);
-            await FadeInImage(Image3, 0.35,0,1);
-            await FadeInImage(Image4, 0.600,0,1);
-            await FadeInImage(Image5, 0.5,0,1);
 
-            if (Environment.UserName == "SYSTEM")
+            if (settings[5]) // Condition to play ORB animation if box is checked
+            {
+                await Task.Delay(100);
+                await FadeInImage(Image1, 0.10, 0, 1);
+                await Task.Delay(700);
+                await FadeInImage(Image2, 0.20, 0, 0.5); //Image2 has a little "blip" synced with the startup sound, hence why it has two different fade intervals
+                await FadeInImage(Image2, 0.60, 0.5, 1);
+                await FadeInImage(Image3, 0.35, 0, 1);
+                await FadeInImage(Image4, 0.600, 0, 1);
+                await FadeInImage(Image5, 0.5, 0, 1);
+            }
+            else
+            {
+                await Task.Delay(800); // Don't play ORB animation if box is unchecked, 800 value is the addition related to previous values
+            }
+
+            if (identity.User != null && identity.User.Value == systemSid)
             {
                 await FadeOutWindow(1000);
                 Hide();
                 LogonUI.WaitForExit();
-                PlayLogonSound();
+                //PlayLogonSound(); // No more used since the addition of "-logon" argument
             }
             else {
                 await FadeOutWindow(1600);
-                PlayLogonSound();
+                //PlayLogonSound(); // No more used since the addition of "-logon" argument
             }
             Debug.Print("Sequence complete! Quitting now...");
             Environment.Exit(1337);
@@ -198,25 +244,54 @@ namespace LogonVistaOrb
 
         private void PlayStartupSound()
         {
-            if (!settings[0]) 
+            if (settings[6]) //Is App enabled? Added this condition to prevent playing sounds if app is completely disabled
             {
-                Debug.Print("User has disabled the startup sound...");
-                return;
+                if (!settings[0])
+                {
+                    Debug.Print("User has disabled the Startup sound...");
+                    return;
+                }
+                if (settings[4])
+                {
+                    Debug.Print("Playing user's custom Startup sound scheme...");
+                    using (SoundPlayer player = new SoundPlayer(new MemoryStream(wavDataCustomStartup)))
+                    {
+                        player.Play();
+                    }
+                    return;
+                }
+                Debug.Print("Playing the default Startup sound...");
+                using (SoundPlayer player = new SoundPlayer(new MemoryStream(wavDataStartup)))
+                {
+                    player.Play();
+                }
             }
-            Debug.Print("Playing the startup sound...");
-            SoundPlayer player = new SoundPlayer(new MemoryStream(wavDataStartup)); 
-            player.Play();
         }
-        private void PlayLogonSound()
+
+        private void PlayLogonSound() //For now, no more used to prevent duplicated logon sound
         {
-            if (!settings[1])
+            if (settings[6]) //Is App enabled ? Added this condition to prevent playing sounds if app is completely disabled
             {
-                Debug.Print("User has disabled the logon sound...");
-                return;
+                if (!settings[1])
+                {
+                    Debug.Print("User has disabled the Logon sound...");
+                    return;
+                }
+                if (settings[3])
+                {
+                    Debug.Print("Playing user's custom Logon sound scheme...");
+                    using (SoundPlayer player = new SoundPlayer(new MemoryStream(wavDataLogonScheme)))
+                    {
+                        player.PlaySync();
+                    }
+                    return;
+                }
+                Debug.Print("Playing the default Logon sound...");
+                using (SoundPlayer player = new SoundPlayer(new MemoryStream(wavDataLogon)))
+                {
+                    player.PlaySync();
+                }
             }
-            Debug.Print("Playing the logon sound...");
-            SoundPlayer player = new SoundPlayer(new MemoryStream(wavDataLogon));
-            player.PlaySync();
         }
 
         private async Task FadeInImage(System.Windows.Controls.Image image, double duration, double startOpacity, double endOpacity) //Fade each image into view
@@ -276,6 +351,26 @@ namespace LogonVistaOrb
                 if (key.GetValueNames().Contains("awaitAudioServices"))
                 {
                     settings[2] = Convert.ToBoolean(Int32.Parse(key.GetValue("awaitAudioServices").ToString()));
+                }
+                //Custom Sound scheme?
+                if (key.GetValueNames().Contains("SchemeSound"))
+                {
+                    settings[3] = Convert.ToBoolean(Int32.Parse(key.GetValue("SchemeSound").ToString()));
+                }
+                //Custom Startup Sound?
+                if (key.GetValueNames().Contains("CustomStartupSound"))
+                {
+                    settings[4] = Convert.ToBoolean(Int32.Parse(key.GetValue("CustomStartupSound").ToString()));
+                }
+                //ORB Animation Enabled?
+                if (key.GetValueNames().Contains("animationEnabled"))
+                {
+                    settings[5] = Convert.ToBoolean(Int32.Parse(key.GetValue("animationEnabled").ToString()));
+                }
+                //App Enabled?
+                if (key.GetValueNames().Contains("Enabled"))
+                {
+                    settings[6] = Convert.ToBoolean(Int32.Parse(key.GetValue("Enabled").ToString()));
                 }
             }
         }

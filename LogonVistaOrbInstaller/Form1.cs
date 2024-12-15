@@ -41,7 +41,7 @@ namespace LogonVistaOrbInstaller
         bool installStatus = false;
         string tempFolder = Path.GetTempPath() + "LogonVistaOrb";
         PrivateFontCollection segoeUI = new PrivateFontCollection();
-        string appVersion = "1.0.0";
+        string appVersion = "2.0.0";
         Version installedVersion = new Version();
 
         private void CheckOSVersion()
@@ -133,6 +133,42 @@ namespace LogonVistaOrbInstaller
             Environment.Exit(0);
         }
 
+        private void ShowSchemeOptions(bool exclude)
+        {
+            string[] keys = {
+        @"HKEY_CURRENT_USER\AppEvents\EventLabels\SystemExit",
+        @"HKEY_CURRENT_USER\AppEvents\EventLabels\WindowsLogoff",
+        @"HKEY_CURRENT_USER\AppEvents\EventLabels\WindowsLogon",
+        @"HKEY_CURRENT_USER\AppEvents\EventLabels\WindowsUnlock"
+    };
+
+            foreach (var keyPath in keys)
+            {
+                string relativePath = keyPath.Replace(@"HKEY_CURRENT_USER\", "");
+                try
+                {
+                    using (RegistryKey key = Registry.CurrentUser.OpenSubKey(relativePath, true) ?? Registry.CurrentUser.CreateSubKey(relativePath, true))
+                    {
+                        if (key != null)
+                        {
+                            key.SetValue("ExcludeFromCPL", exclude ? 1 : 0, RegistryValueKind.DWord);
+                            Console.WriteLine($"Updated registry key: {keyPath} to {(exclude ? 1 : 0)}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Failed to open or create key: {keyPath}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error modifying key {keyPath}: {ex.Message}");
+                }
+            }
+        }
+
+
+
 
         private void installButton_Click(object didntUseThisVar, EventArgs didntUseThisVarEither)
         {
@@ -156,6 +192,17 @@ namespace LogonVistaOrbInstaller
                     vistaKey.SetValue("Version", appVersion, RegistryValueKind.String);
                     vistaKey.SetValue("Installed", 1, RegistryValueKind.DWord); //We have now ensured that our program knows it has installed itself
 
+                    // Disable Fast Startup to prevent LogonVistaOrb not launching during system startup
+                    using (RegistryKey hiberbootKey = Registry.LocalMachine.CreateSubKey(@"SYSTEM\CurrentControlSet\Control\Session Manager\Power", true))
+                    {
+                        hiberbootKey.SetValue("HiberbootEnabled", 0, RegistryValueKind.DWord);
+                    }
+
+                    // Disable Startup Sound since LogonVistaOrb v2.0.0 supports playing and customising Startup sound
+                    using (RegistryKey DisableStartupSoundKey = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation", true))
+                    {
+                        DisableStartupSoundKey.SetValue("DisableStartupSound", 1, RegistryValueKind.DWord);
+                    }
 
                     //Extract files from the program to the temp folder
                     if (!Directory.Exists(tempFolder))
@@ -164,6 +211,10 @@ namespace LogonVistaOrbInstaller
                     }
                     File.WriteAllBytes(tempFolder + @"\temp.bin", Properties.Resources.app);
                     File.WriteAllText(tempFolder + @"\LogonVistaOrb.xml", Properties.Resources.LogonVistaOrb);
+                    File.WriteAllText(tempFolder + @"\LogonVistaOrb-Lock.xml", Properties.Resources.LogonVistaOrbLock);
+                    File.WriteAllText(tempFolder + @"\LogonVistaOrb-Logoff.xml", Properties.Resources.LogonVistaOrbLogoff);
+                    File.WriteAllText(tempFolder + @"\LogonVistaOrb-Unlock.xml", Properties.Resources.LogonVistaOrbUnlock);
+                    File.WriteAllText(tempFolder + @"\LogonVistaOrb-Logon.xml", Properties.Resources.LogonVistaOrbLogon);
                     try
                     {
                         ZipFile.ExtractToDirectory(tempFolder + @"\temp.bin", @"C:\Windows\System32");
@@ -176,12 +227,36 @@ namespace LogonVistaOrbInstaller
                         });
                     }
 
+                    ShowSchemeOptions(false); // Define "ExcludeFromCPL" to 1 for each key wich now shows system events sounds in Schemes
+
                     //Install the task with powershell (Allows the animation to be reloaded on system shutdown/reboot)
                     Process powerShell = new Process();
                     powerShell.StartInfo.FileName = "powershell.exe";
                     powerShell.StartInfo.WorkingDirectory = tempFolder;
-                    powerShell.StartInfo.Arguments = "Register-ScheduledTask -Xml (get-content 'LogonVistaOrb.xml' | out-string) -TaskName \"LogonVistaOrb\"";
                     powerShell.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
+                    // Installation of "LogonVistaOrb" task
+                    powerShell.StartInfo.Arguments = "Register-ScheduledTask -Xml (get-content 'LogonVistaOrb.xml' | out-string) -TaskName \"LogonVistaOrb\"";
+                    powerShell.Start();
+                    powerShell.WaitForExit();
+
+                    // Installation of "LogonVistaOrb - Lock" task
+                    powerShell.StartInfo.Arguments = "Register-ScheduledTask -Xml (get-content 'LogonVistaOrb-Lock.xml' | out-string) -TaskName \"LogonVistaOrb-Lock\"";
+                    powerShell.Start();
+                    powerShell.WaitForExit();
+
+                    // Installation of "LogonVistaOrb - Logoff" task
+                    powerShell.StartInfo.Arguments = "Register-ScheduledTask -Xml (get-content 'LogonVistaOrb-Logoff.xml' | out-string) -TaskName \"LogonVistaOrb-Logoff\"";
+                    powerShell.Start();
+                    powerShell.WaitForExit();
+
+                    // Installation of "LogonVistaOrb - Unlock" task
+                    powerShell.StartInfo.Arguments = "Register-ScheduledTask -Xml (get-content 'LogonVistaOrb-Unlock.xml' | out-string) -TaskName \"LogonVistaOrb-Unlock\"";
+                    powerShell.Start();
+                    powerShell.WaitForExit();
+
+                    // Installation of "LogonVistaOrb - Logon" task
+                    powerShell.StartInfo.Arguments = "Register-ScheduledTask -Xml (get-content 'LogonVistaOrb-Logon.xml' | out-string) -TaskName \"LogonVistaOrb-Logon\"";
                     powerShell.Start();
                     powerShell.WaitForExit();
 
@@ -243,10 +318,41 @@ namespace LogonVistaOrbInstaller
                     Process powerShell = new Process();
                     powerShell.StartInfo.FileName = "powershell.exe";
                     powerShell.StartInfo.WorkingDirectory = tempFolder;
-                    powerShell.StartInfo.Arguments = "Unregister-ScheduledTask -TaskName \"LogonVistaOrb\" -Confirm:$false";
                     powerShell.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
+                    // Remove "LogonVistaOrb" task
+                    powerShell.StartInfo.Arguments = "Unregister-ScheduledTask -TaskName \"LogonVistaOrb\" -Confirm:$false";
                     powerShell.Start();
                     powerShell.WaitForExit();
+
+                    // Remove "LogonVistaOrb - Lock" task
+                    powerShell.StartInfo.Arguments = "Unregister-ScheduledTask -TaskName \"LogonVistaOrb-Lock\" -Confirm:$false";
+                    powerShell.Start();
+                    powerShell.WaitForExit();
+
+                    // Remove "LogonVistaOrb - Logoff" task
+                    powerShell.StartInfo.Arguments = "Unregister-ScheduledTask -TaskName \"LogonVistaOrb-Logoff\" -Confirm:$false";
+                    powerShell.Start();
+                    powerShell.WaitForExit();
+
+                    // Remove "LogonVistaOrb - Unlock" task
+                    powerShell.StartInfo.Arguments = "Unregister-ScheduledTask -TaskName \"LogonVistaOrb-Unlock\" -Confirm:$false";
+                    powerShell.Start();
+                    powerShell.WaitForExit();
+
+                    // Remove "LogonVistaOrb - Logon" task
+                    powerShell.StartInfo.Arguments = "Unregister-ScheduledTask -TaskName \"LogonVistaOrb-Logon\" -Confirm:$false";
+                    powerShell.Start();
+                    powerShell.WaitForExit();
+
+
+                    ShowSchemeOptions(true); // Resetting "ExcludeFromCPL" to 0 for each key to hide system events sounds again (default behaviour)
+
+                    // Renable Fast Startup, program is uninstalled so no need to keep that off
+                    using (RegistryKey hiberbootKey = Registry.LocalMachine.CreateSubKey(@"SYSTEM\CurrentControlSet\Control\Session Manager\Power", true))
+                    {
+                        hiberbootKey.SetValue("HiberbootEnabled", 1, RegistryValueKind.DWord);
+                    }
 
                     //Remove the start menu shortcut if it exists
                     if (File.Exists("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\LogonVistaOrb Settings.lnk")) {
