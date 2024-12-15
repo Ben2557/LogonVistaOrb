@@ -229,7 +229,7 @@ namespace LogonVistaOrbInstaller
 
                     ShowSchemeOptions(false); // Define "ExcludeFromCPL" to 1 for each key wich now shows system events sounds in Schemes
 
-                    //Install the task with powershell (Allows the animation to be reloaded on system shutdown/reboot)
+                    //Install tasks with powershell (Allows the animation to be reloaded on system shutdown/reboot)
                     Process powerShell = new Process();
                     powerShell.StartInfo.FileName = "powershell.exe";
                     powerShell.StartInfo.WorkingDirectory = tempFolder;
@@ -314,7 +314,7 @@ namespace LogonVistaOrbInstaller
                     Directory.Delete(@"C:\Windows\System32\LogonVistaOrb", true);
                     File.Delete(@"C:\Windows\System32\LogonVistaOrb.exe");
 
-                    //Remove the scheduled task
+                    //Remove scheduled tasks
                     Process powerShell = new Process();
                     powerShell.StartInfo.FileName = "powershell.exe";
                     powerShell.StartInfo.WorkingDirectory = tempFolder;

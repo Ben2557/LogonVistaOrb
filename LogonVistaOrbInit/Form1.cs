@@ -706,7 +706,6 @@ namespace LogonVistaOrbInit
             logonCheck.Enabled = AppEnabled;
             shutdownCheck.Enabled = AppEnabled;
             audioCheck.Enabled = AppEnabled;
-            //schemeCheck.Enabled = AppEnabled;
             customstartupCheck.Enabled = AppEnabled;
             logoffCheck.Enabled = AppEnabled;
             unlockCheck.Enabled = AppEnabled;
@@ -724,14 +723,14 @@ namespace LogonVistaOrbInit
 
             customstartupCheck.Enabled = StartupSoundEnabled; // Enable or disable "Custom startup" button
 
-            // Gestion spécifique pour customstartupCheck
+            // Specific for customstartupCheck
             bool customStartupEnabled = customstartupCheck.Checked && startupCheck.Checked && enableCheck.Checked;
 
             BrowseStartupFileButton.Enabled = customStartupEnabled; // Enable or disable "Browse" button
             StartupSoundFilePath.Enabled = customStartupEnabled;   // Enable or disable textbox
-            StartupTest.Enabled = customStartupEnabled;            // Enable or disable test button
+            StartupTest.Enabled = customStartupEnabled;            // Enable or disable test sound button
 
-            // Grey out "Use sounds from my Sound scheme" if enableCheck is unchecked or all action sounds are unchecked
+            // Grey out "Use sounds from my Sound scheme" if enableCheck is unchecked OR all action sounds are unchecked
             bool ActionSounds = logonCheck.Checked || logoffCheck.Checked || unlockCheck.Checked || lockCheck.Checked || shutdownCheck.Checked;
 
             schemeCheck.Enabled = AppEnabled && ActionSounds;
