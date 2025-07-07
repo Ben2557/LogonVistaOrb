@@ -515,7 +515,7 @@ namespace LogonVistaOrbInit
             const string destinationKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
 
             // Read source value
-            object sourceValue = Registry.GetValue(sourceKeyPath, "", null);
+            object sourceValue = Registry.GetValue(sourceKeyPath, "", string.Empty);
 
             // Open destination key
             using (RegistryKey destinationKey = Registry.LocalMachine.OpenSubKey(destinationKeyPath, true))
@@ -532,7 +532,7 @@ namespace LogonVistaOrbInit
             const string destinationKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
 
             // Read source value
-            object sourceValue = Registry.GetValue(sourceKeyPath, "", null);
+            object sourceValue = Registry.GetValue(sourceKeyPath, "", string.Empty);
 
             // Open destination key
             using (RegistryKey destinationKey = Registry.LocalMachine.OpenSubKey(destinationKeyPath, true))
@@ -549,7 +549,7 @@ namespace LogonVistaOrbInit
             const string destinationKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
 
             // Read source value
-            object sourceValue = Registry.GetValue(sourceKeyPath, "", null);
+            object sourceValue = Registry.GetValue(sourceKeyPath, "", string.Empty);
 
             // Open destination key
             using (RegistryKey destinationKey = Registry.LocalMachine.OpenSubKey(destinationKeyPath, true))
@@ -566,7 +566,7 @@ namespace LogonVistaOrbInit
             const string destinationKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
 
             // Read source value
-            object sourceValue = Registry.GetValue(sourceKeyPath, "", null);
+            object sourceValue = Registry.GetValue(sourceKeyPath, "", string.Empty);
 
             // Open destination key
             using (RegistryKey destinationKey = Registry.LocalMachine.OpenSubKey(destinationKeyPath, true))
