@@ -50,3 +50,4 @@ node_modules/
 /.gitignore
 /.vs/LogonVistaOrb/FileContentIndex/515d8c17-1ddf-4997-a203-846ddb287882.vsidx
 /.vs/LogonVistaOrb/FileContentIndex/cf72c6cc-bcb9-44cd-987b-219e8b4510ed.vsidx
+*.vsidx
