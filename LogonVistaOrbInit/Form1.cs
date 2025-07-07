@@ -23,10 +23,12 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Media;
-using System.Security.Principal;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -514,8 +516,8 @@ namespace LogonVistaOrbInit
             const string sourceKeyPath = @"HKEY_CURRENT_USER\AppEvents\Schemes\Apps\.Default\WindowsLogon\.Current";
             const string destinationKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
 
-            // Read source value
-            object sourceValue = Registry.GetValue(sourceKeyPath, "", null);
+            // Read source value with empty string as default instead of null
+            object sourceValue = Registry.GetValue(sourceKeyPath, "", string.Empty);
 
             // Open destination key
             using (RegistryKey destinationKey = Registry.LocalMachine.OpenSubKey(destinationKeyPath, true))
@@ -531,8 +533,8 @@ namespace LogonVistaOrbInit
             const string sourceKeyPath = @"HKEY_CURRENT_USER\AppEvents\Schemes\Apps\.Default\SystemExit\.Current";
             const string destinationKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
 
-            // Read source value
-            object sourceValue = Registry.GetValue(sourceKeyPath, "", null);
+            // Read source value with empty string as default instead of null
+            object sourceValue = Registry.GetValue(sourceKeyPath, "", string.Empty);
 
             // Open destination key
             using (RegistryKey destinationKey = Registry.LocalMachine.OpenSubKey(destinationKeyPath, true))
@@ -548,8 +550,8 @@ namespace LogonVistaOrbInit
             const string sourceKeyPath = @"HKEY_CURRENT_USER\AppEvents\Schemes\Apps\.Default\WindowsLogoff\.Current";
             const string destinationKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
 
-            // Read source value
-            object sourceValue = Registry.GetValue(sourceKeyPath, "", null);
+            // Read source value with empty string as default instead of null
+            object sourceValue = Registry.GetValue(sourceKeyPath, "", string.Empty);
 
             // Open destination key
             using (RegistryKey destinationKey = Registry.LocalMachine.OpenSubKey(destinationKeyPath, true))
@@ -565,8 +567,8 @@ namespace LogonVistaOrbInit
             const string sourceKeyPath = @"HKEY_CURRENT_USER\AppEvents\Schemes\Apps\.Default\WindowsUnlock\.Current";
             const string destinationKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
 
-            // Read source value
-            object sourceValue = Registry.GetValue(sourceKeyPath, "", null);
+            // Read source value with empty string as default instead of null
+            object sourceValue = Registry.GetValue(sourceKeyPath, "", string.Empty);
 
             // Open destination key
             using (RegistryKey destinationKey = Registry.LocalMachine.OpenSubKey(destinationKeyPath, true))
