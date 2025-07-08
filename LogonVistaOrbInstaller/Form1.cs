@@ -41,7 +41,7 @@ namespace LogonVistaOrbInstaller
         bool installStatus = false;
         string tempFolder = Path.GetTempPath() + "LogonVistaOrb";
         PrivateFontCollection segoeUI = new PrivateFontCollection();
-        string appVersion = "2.0.0";
+        string appVersion = "2.1.0";
         Version installedVersion = new Version();
 
         private void CheckOSVersion()
