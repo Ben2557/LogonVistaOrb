@@ -130,6 +130,50 @@ namespace LogonVistaOrbInstaller
             SoundPlayer sound = new SoundPlayer(Properties.Resources.Shutdown);
             sound.Play();
             Thread.Sleep(1500);
+
+
+            //Check if program is installed
+            bool isInstalled = false;
+            string registryKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\LogonUI.exe\LogonVistaOrb";
+            using (Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registryKeyPath))
+            {
+                if (key != null)
+                {
+                    if (key.GetValueNames().Contains("Installed"))
+                    {
+                        isInstalled = true;
+                    }
+                }
+            }
+
+            //If program is installed, run the GUI console
+            if (isInstalled)
+            {
+                string configExePath = @"C:\Windows\System32\LogonVistaOrb\LogonVistaOrbInit.exe";
+                if (System.IO.File.Exists(configExePath))
+                {
+                    try
+                    {
+                        System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = configExePath,
+                            Arguments = "-config",
+                            UseShellExecute = true, //Mandatory for 'Verb = "runas"'
+                            Verb = "runas" //Ask for admin rights
+                        };
+                        System.Diagnostics.Process.Start(startInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        //Manage potential errors, for instance if user cancel Windows UAC check
+                        System.Diagnostics.Debug.WriteLine($"Error launching the configuration tool : {ex.Message}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"The setup executable was not found at : {configExePath}");
+                }
+            }
             Environment.Exit(0);
         }
 
