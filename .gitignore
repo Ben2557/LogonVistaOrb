@@ -213,3 +213,5 @@ node_modules/
 /LogonVistaOrb/LogonVistaOrb/desktop.ini
 /LogonVistaOrbInstaller/Resources/app.zip
 /.vs/slnx.sqlite-journal
+/LogonVistaOrbInstaller/bin/x64/Release/app.publish/LogonVistaOrbInstaller_x64.exe
+/LogonVistaOrbInstaller/bin/x86/Release/app.publish/LogonVistaOrbInstaller_x86.exe
