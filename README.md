@@ -46,6 +46,3 @@ For whatever reason you wish to compile the source code, bare in mind, that if y
 3. You can now compile the LogonVistaOrbInstaller solution. It is recommended to make a 32 bit and 64 bit build to ensure the registry is accessed correctly. 
 
 Have fun!
-
-
-Original repo : https://github.com/xxxman360/LogonVistaOrb
