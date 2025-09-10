@@ -142,4 +142,16 @@
   <data name="WAVE5051" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\WAVE5051.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="LogonVistaOrbLock" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LogonVistaOrb-Lock.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-16</value>
+  </data>
+  <data name="LogonVistaOrbLogoff" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LogonVistaOrb-Logoff.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-16</value>
+  </data>
+  <data name="LogonVistaOrbUnlock" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LogonVistaOrb-Unlock.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-16</value>
+  </data>
+  <data name="LogonVistaOrbLogon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LogonVistaOrb-Logon.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-16</value>
+  </data>
 </root>

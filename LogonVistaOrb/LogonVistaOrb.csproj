@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
     <PackageIcon></PackageIcon>
     <Win32Resource>LogonVistaOrb.res</Win32Resource>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -71,6 +72,13 @@
     <None Update="LogonVistaOrb\Sounds\Shutdown.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+	  <None Update="LogonVistaOrb\Sounds\Logoff.wav">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Update="WAVE5051.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -89,6 +97,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
 
